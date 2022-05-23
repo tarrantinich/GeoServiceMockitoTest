@@ -1,44 +1,47 @@
 package ru.netology.geo;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import ru.netology.entity.Country;
 import ru.netology.entity.Location;
 
+import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static ru.netology.entity.Country.RUSSIA;
+import static ru.netology.entity.Country.USA;
 
 public class GeoServiceImplTest {
 
-    @Test
-    public void byIpTest() {
+    @ParameterizedTest
+    @MethodSource("testSourse2")
+    public void byIpTest(String ip, Location expected) {
         GeoService geoService1 = new GeoServiceImpl();
+        Location result = geoService1.byIp(ip);
+        assertEquals(expected.getCountry(), result.getCountry());
+        assertEquals(expected.getCity(), result.getCity());
+        assertEquals(expected.getStreet(), result.getStreet());
+        assertEquals(expected.getBuiling(), result.getBuiling());
+    }
 
-        String ip1 = "172.55.62.4";
-        Location result1 = geoService1.byIp(ip1);
-        Location expected1 = new Location("Moscow", Country.RUSSIA, null, 0);
-        assertEquals(expected1.getCountry(), result1.getCountry());
-        assertEquals(expected1.getCity(), result1.getCity());
-        assertEquals(expected1.getStreet(), result1.getStreet());
-        assertEquals(expected1.getBuiling(), result1.getBuiling());
-
-        GeoService geoService2 = new GeoServiceImpl();
-        String ip2 = "96.36.31.12";
-        Location result2 = geoService2.byIp(ip2);
-        Location expected2 = new Location("New York", Country.USA, null, 0);
-        assertEquals(expected2.getCountry(), result2.getCountry());
-        assertEquals(expected2.getCity(), result2.getCity());
-        assertEquals(expected2.getStreet(), result2.getStreet());
-        assertEquals(expected2.getBuiling(), result2.getBuiling());
+    private static Stream<Arguments> testSourse2() {
+        return Stream.of(
+                Arguments.of("172.55.62.4", new Location("Moscow", Country.RUSSIA, null, 0)),
+                Arguments.of("96.36.31.12", new Location("New York", Country.USA, null, 0))
+        );
     }
 
     @Test
-    public void byCoordinatesTest(){
+    public void byCoordinatesTest() {
         GeoService geoService = new GeoServiceImpl();
         double latitude = 86.6;
         double longitude = 55.3;
         Class<RuntimeException> expected = RuntimeException.class;
 
         assertThrows(expected,
-                () -> geoService.byCoordinates(latitude,longitude));
+                () -> geoService.byCoordinates(latitude, longitude));
     }
 }
